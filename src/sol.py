@@ -17,19 +17,13 @@ for x in range(Claus):
         var_atuais[y[0]] = int(y[1])
     list_claus[x].append(var_atuais)
 
-def fullFlip(cmd,*var):
-    list_var = [0] * Var
-    if cmd == "full":
-        for x in enumerate(var):
-            list_var[x[0]] = list_var[dict_var[x[1]]]
-
-
-        
-    
 
 for line in stdin:f
     cmd, *val = line.split()
-
+    list_var = [0] * Var
+    if cmd == "full":
+        for x in enumerate(var):
+            list_var[x[0]] = dict_var[x[1]]
 
 
 
