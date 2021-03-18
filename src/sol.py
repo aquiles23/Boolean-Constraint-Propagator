@@ -6,10 +6,12 @@ dict_var = {x:True for x in range(1,Var+1) }
 list_claus = [[]] * Claus
 
 for x in range(Claus):
-    var_atuais* = input().split()
-    for x in enumerate(var_atuais):
-        var_atuais[x] = int(x)
+    var_atuais = input().split()
+    for y in enumerate(var_atuais):
+        var_atuais[y[0]] = int(y[1])
+    print(var_atuais)
     list_claus[x].append(var_atuais)
+
 
     
 """     primeiro = True
