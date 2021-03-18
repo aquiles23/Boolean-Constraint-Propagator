@@ -17,13 +17,14 @@ for x in range(Claus):
         var_atuais[y[0]] = int(y[1])
     list_claus[x].append(var_atuais)
 
+list_var = [0] * Var
 for line in stdin:
     """print(line, end='')"""
     cmd, *val = line.split()
     print('cmd', cmd)
     print('val', val)
 
-    list_var = [0] * Var
+    
     if cmd == "full":
         for x in enumerate(val):
             list_var[x[0]] = dict_var[int(x[1])]
@@ -31,6 +32,7 @@ for line in stdin:
 
     elif cmd == 'flip':
         i = int(val[0])
+        print("valor i:", i)
         list_var[abs(i) - 1] = not list_var[abs(i) - 1]
 
         print(list_var)
