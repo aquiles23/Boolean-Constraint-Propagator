@@ -23,35 +23,15 @@ for line in stdin:
     print('cmd', cmd)
     print('val', val)
 
-    if cmd == 'full':
-        for x in val:
-            i = int(x)
-            if i > 0:
-                dict_var[abs(i)] = True
-            elif i < 0:
-                dict_var[abs(i)] = False
-        print(dict_var)
-        print('')
+    list_var = [0] * Var
+    if cmd == "full":
+        for x in enumerate(val):
+            list_var[x[0]] = dict_var[int(x[1])]
+        print(list_var)
 
     elif cmd == 'flip':
         i = int(val[0])
-        if dict_var[abs(i)] == False:
-            dict_var[abs(i)] = True
-        else:
-            dict_var[abs(i)] = False
+        list_var[abs(i) - 1] = not list_var[abs(i) - 1]
 
-        print(dict_var)
+        print(list_var)
         print('')
-
-
-for line in stdin:f
-    cmd, *val = line.split()
-    list_var = [0] * Var
-    if cmd == "full":
-        for x in enumerate(var):
-            list_var[x[0]] = dict_var[x[1]]
-
-
-
-
-
