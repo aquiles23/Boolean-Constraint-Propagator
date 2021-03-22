@@ -4,15 +4,19 @@ import math
 
 
 
-""" def sort_func(elem):
-    return abs(int(elem)) """
-
 def verificator(claus: list, vars_atual : dict, var_qtd: dict):
     claus_false = []
     qtd_false = 0
+    # print(f"var_atuais:  {vars_atual}")
+    # print(f"clausulas {claus}")
     for i, x in enumerate(claus):
+        #list compreension
+        # print("clausula atual:", x)
         bool_claus = [
-            vars_atual[key] if x[key]>0 else not vars_atual[key] 
+            # aqui da problema ...
+            vars_atual[key] 
+                if next(y for y in x if abs(y)==abs(key)) > 0 
+                else not vars_atual[key] 
             for key in vars_atual
         ]
 
@@ -28,12 +32,12 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
         print("SAT")
     else:
         print(f"[{qtd_false} clausulas falsas] ",end="")
-        print(*claus_false, sep=" ")
+        print(*claus_false)
         print(f"[lits] ",end="")
         lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
 
         lvar_qtd = sorted(lvar_qtd, key= lambda x: var_qtd[x] , reverse=True)
-        print(*lvar_qtd, sep=" ")
+        print(*lvar_qtd)
     
     
 
@@ -42,6 +46,7 @@ Var = int(Var)
 Claus = int(Claus)
 
 var_qtd = {}
+#dict compreension
 all_var = {x:True if x>0 else False for x in range(-Var,Var+1) }
 
 list_claus = []
@@ -77,7 +82,8 @@ for line in stdin:
         # print(dict_var)
 
         verificator(list_claus, dict_var, var_qtd)
-        # var_qtd = dict.fromkeys(var_qtd, 0)
+        #zera a contagm
+        var_qtd = dict.fromkeys(var_qtd, 0)
 
     elif cmd == 'flip':
         i = int(val[0])
@@ -92,7 +98,7 @@ for line in stdin:
         verificator(list_claus, dict_var, var_qtd)
 
         #zera a contagem
-        # var_qtd = dict.fromkeys(var_qtd, 0)
+        var_qtd = dict.fromkeys(var_qtd, 0)
 
         # print(dict_var)
         # print('')
