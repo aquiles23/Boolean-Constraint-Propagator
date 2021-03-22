@@ -4,8 +4,8 @@ import math
 
 
 
-def sort_func(elem):
-    return abs(int(elem))
+""" def sort_func(elem):
+    return abs(int(elem)) """
 
 def verificator(claus: list, vars_atual : dict, var_qtd: dict):
     claus_false = []
@@ -30,7 +30,9 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
         print(f"[{qtd_false} clausulas falsas] ",end="")
         print(*claus_false, sep=" ")
         print(f"[lits] ",end="")
-        lvar_qtd = sorted(var_qtd, key= lambda x: var_qtd[x], reverse=True)
+        lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
+
+        lvar_qtd = sorted(lvar_qtd, key= lambda x: var_qtd[x] , reverse=True)
         print(*lvar_qtd, sep=" ")
     
     
