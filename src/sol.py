@@ -2,24 +2,35 @@
 from sys import stdin
 import math
 
-
-
 def verificator(claus: list, vars_atual : dict, var_qtd: dict):
     claus_false = []
     qtd_false = 0
-    # print(f"var_atuais:  {vars_atual}")
+    #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
     for i, x in enumerate(claus):
         #list compreension
         # print("clausula atual:", x)
-        bool_claus = [
-            # aqui da problema ...
-            vars_atual[key] 
-                if next(y for y in x if abs(y)==abs(key)) > 0 
-                else not vars_atual[key] 
-            for key in vars_atual
-        ]
 
+        bool_claus = []
+        for key in vars_atual:
+            for y in x:
+                # print(f"key: {key}")
+                # print(f"y: {y}")
+                if abs(y) == abs(key):
+                    if y>0:
+                        bool_claus.append(vars_atual[key])
+                    else:
+                        bool_claus.append(not vars_atual[key])
+
+        # bool_claus = [
+        #     # aqui da problema ...
+        #     vars_atual[key] 
+        #         if next(y for y in x if abs(y)==abs(key)) > 0 
+        #         else not vars_atual[key] 
+        #     for key in vars_atual
+        # ]
+
+        
         # a clausula é falsa
         if not any(bool_claus):
             # adiciona o indice da clausula em uma lista
@@ -65,15 +76,15 @@ for x in range(Claus):
         # cria uma lista de como foi escrito no input
         var_atuais.append(int(y[1]))
     list_claus.append(var_atuais)
-print(list_claus)
+#print(list_claus)
 #list_var = [0] * Var
 # decidi que um dict é melhor
 dict_var = {}
 for line in stdin:
 
     cmd, *val = line.split()
-    print('cmd', cmd)
-    print('val', val)
+    #print('cmd', cmd)
+    #print('val', val)
 
     if cmd == "full":
         for x in val: # enumerate(val):
@@ -87,7 +98,7 @@ for line in stdin:
 
     elif cmd == 'flip':
         i = int(val[0])
-        print("valor i:", i)
+        #print("valor i:", i)
         #dict_var[abs(i) - 1] = not dict_var[abs(i) - 1]
 
         # retira o que tinha no dicionário e depois reinsere com valor e indice trocado
