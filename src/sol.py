@@ -47,7 +47,7 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
         print(f"[lits] ",end="")
         lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
 
-        lvar_qtd = sorted(lvar_qtd, key= lambda x: var_qtd[x] , reverse=True)
+        lvar_qtd = sorted(lvar_qtd, key= lambda x: (var_qtd[x], abs(x)) , reverse=True)
         print(*lvar_qtd)
     
     
