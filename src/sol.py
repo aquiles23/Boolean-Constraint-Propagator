@@ -12,15 +12,18 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
         # print("clausula atual:", x)
 
         bool_claus = []
-        for key in vars_atual:
-            for y in x:
-                # print(f"key: {key}")
-                # print(f"y: {y}")
-                if abs(y) == abs(key):
-                    if y>0:
-                        bool_claus.append(vars_atual[key])
-                    else:
-                        bool_claus.append(not vars_atual[key])
+        for y in x:
+            # retirar um for otimizou bastante o algoritmo
+            if abs(y) in vars_atual:
+                if y>0:
+                    bool_claus.append(vars_atual[abs(y)])
+                else:
+                    bool_claus.append(not vars_atual[abs(y)])
+            if y in vars_atual:
+                if y>0:
+                    bool_claus.append(vars_atual[y])
+                else:
+                    bool_claus.append(not vars_atual[y])
 
         # bool_claus = [
         #     # aqui da problema ...
@@ -87,6 +90,8 @@ for line in stdin:
     #print('val', val)
 
     if cmd == "full":
+        # para usar o full mais de uma vez tem que limpar o dicionário
+        dict_var.clear()
         for x in val: # enumerate(val):
             i = int(x)
             dict_var.update({i : all_var[i]})
