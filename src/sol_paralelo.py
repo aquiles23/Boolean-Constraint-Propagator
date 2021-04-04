@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-from sys import stdin
+from sys import stdin , argv
 import math
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing as mp
 
-def verificator(claus: list, vars_atual : dict, var_qtd: dict):
+def paralelo_verificator( claus : list, vars_atual :dict, var_qtd: dict): 
     claus_false = []
     qtd_false = 0
-    #print(f"var_atuais:  {vars_atual}")
-    # print(f"clausulas {claus}")
+
     for i, x in enumerate(claus):
         #list compreension
         # print("clausula atual:", x)
@@ -25,15 +26,6 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
                 else:
                     bool_claus.append(not vars_atual[y])
 
-        # bool_claus = [
-        #     # aqui da problema ...
-        #     vars_atual[key] 
-        #         if next(y for y in x if abs(y)==abs(key)) > 0 
-        #         else not vars_atual[key] 
-        #     for key in vars_atual
-        # ]
-
-        
         # a clausula é falsa
         if not any(bool_claus):
             # adiciona o indice da clausula em uma lista
@@ -52,7 +44,48 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
 
         lvar_qtd = sorted(lvar_qtd, key= lambda x: (var_qtd[x], abs(x)) , reverse=True)
         print(*lvar_qtd)
-    
+
+# global var_qtd : dict
+def dequeu(q, var_qtd : dict):
+    claus_false = []
+    qtd_false = 0
+    ret_str = ""
+    while not q.empty():
+        bool_claus = q.get()
+        if not any(bool_claus):
+            # adiciona o indice da clausula em uma lista
+            claus_false.append(i)
+            qtd_false += 1
+            for y in x:
+                # soma mais um no dict para poder ordenar depois no lits
+                var_qtd[y] += 1
+        if len(claus_false) == 0:
+            ret_str += "SAT\n"
+        else:
+            
+            ret_str += f"[{qtd_false} clausulas falsas] "
+            ret_str += str(claus_false).replace("")
+            lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
+
+            lvar_qtd = sorted(lvar_qtd, key= lambda x: (var_qtd[x], abs(x)) , reverse=True)
+            print(*lvar_qtd)
+    return var_qtd
+
+def verificator(claus: list, vars_atual : dict, var_qtd: dict):
+    #print(f"var_atuais:  {vars_atual}")
+    # print(f"clausulas {claus}")
+    q = mp.SimpleQueue()
+    # print(claus)
+    with ProcessPoolExecutor(max_workers=int(argv[1])) as executor:
+        #enume = enumerate(claus)
+        # for (claus_atual),bool_claus in zip(claus,
+        executor.submit(paralelo_verificator, claus, vars_atual, var_qtd)
+            # print(x)
+            #list compreension
+            # print("clausula atual:", x)
+            # var_qtd = dequeu()
+
+
     
 
 Var, Claus = input().split()
