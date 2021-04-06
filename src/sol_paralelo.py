@@ -6,15 +6,24 @@ import multiprocessing as mp
 import psutil as ps
 import os
 
+queue = mp.Queue()
+queue_lock = mp.Lock()
 
-def verificator(queue, claus: list, var_qtd : dict):
+def verificator(claus: list, var_qtd : dict):
     claus_false = []
+    this_var_qtd = var_qtd.copy()
     parent = ps.Process(os.getppid())
     #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
-    print(parent.status(),"oioioi")
-    while parent.status() != 'sleeping' or not queue.empty():
-        vars_atual = queue.get()
+    while not queue.empty() or True:
+        queue_lock.acquire()
+        try:
+            vars_atual = queue.get(timeout=1)
+        except:
+            queue_lock.release()
+            break
+        queue_lock.release()
+
         qtd_false = 0
         for i, x in enumerate(claus):
             #list compreension
@@ -42,20 +51,23 @@ def verificator(queue, claus: list, var_qtd : dict):
                 qtd_false += 1
                 for y in x:
                     # soma mais um no dict para poder ordenar depois no lits
-                    var_qtd[y] += 1
+                    this_var_qtd[y] += 1
         if not claus_false:
-            print("SAT",flush=True)
+            print("SAT")
         else:
-            print(f"[{qtd_false} clausulas falsas] ",flush=True,end="")
-            print(*claus_false,flush=True)
-            print(f"[lits] ",end="",flush=True)
-            lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
+            print(f"[{qtd_false} clausulas falsas] ",end="")
+            print(*claus_false)
+            print(f"[lits] ",end="")
+            lvar_qtd = list(filter(lambda x: this_var_qtd[x] != 0,this_var_qtd))
 
-            lvar_qtd = sorted(lvar_qtd, key= lambda x: (var_qtd[x], abs(x)) , reverse=True)
-            print(*lvar_qtd,flush=True)
+            lvar_qtd = sorted(lvar_qtd, key= lambda x: (this_var_qtd[x], abs(x)) , reverse=True)
+            print(*lvar_qtd)
+        bool_claus.clear()
+        this_var_qtd = var_qtd.copy()
+        claus_false.clear()
     return "xablau"
 
-def producer(queue, all_var: dict):
+def producer(all_var: dict):
     dict_var = {}
     for line in sys.stdin:
 
@@ -73,7 +85,8 @@ def producer(queue, all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            queue.put(dict_var)
+            
+            queue.put_nowait(dict_var)
 
             #zera a contagm
             # var_qtd = dict.fromkeys(var_qtd, 0)
@@ -91,15 +104,15 @@ def producer(queue, all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            queue.put(dict_var)
-
+            queue.put_nowait(dict_var)
             #zera a contagem
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
             # print(dict_var)
             # print('')
-if __name__ == '__main__':
-    #mp.set_start_method('fork')
+    return 'tred_return'
+
+def main():
     num_cores = mp.cpu_count() if len(sys.argv) <= 1 else int(sys.argv[1])
     Var, Claus = input().split()
     Var = int(Var)
@@ -126,11 +139,12 @@ if __name__ == '__main__':
             var_atuais.append(int(y))
         list_claus.append(var_atuais)
 
-    queue = mp.Queue()
-    # with ThreadPoolExecutor() as TExecutor:
-    #     TExecutor.submit(producer, queue, all_var)
-    with ProcessPoolExecutor(max_workers=num_cores) as PExecutor:
-        for i in range(num_cores):
-            a = PExecutor.submit(verificator, queue, list_claus, var_qtd)
-        producer(queue, all_var)
-        print(a.result())
+    with ThreadPoolExecutor() as TExecutor:
+        tred = TExecutor.submit(producer, all_var)
+        with ProcessPoolExecutor(max_workers=num_cores) as PExecutor:
+            for i in range(num_cores):
+                proc = PExecutor.submit(verificator, list_claus, var_qtd)
+        print(proc.result(), tred.result())
+
+if __name__ == '__main__':
+    main()
