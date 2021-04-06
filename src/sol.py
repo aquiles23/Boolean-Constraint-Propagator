@@ -25,15 +25,7 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
                 else:
                     bool_claus.append(not vars_atual[y])
 
-        # bool_claus = [
-        #     # aqui da problema ...
-        #     vars_atual[key] 
-        #         if next(y for y in x if abs(y)==abs(key)) > 0 
-        #         else not vars_atual[key] 
-        #     for key in vars_atual
-        # ]
 
-        
         # a clausula é falsa
         if not any(bool_claus):
             # adiciona o indice da clausula em uma lista
@@ -42,7 +34,7 @@ def verificator(claus: list, vars_atual : dict, var_qtd: dict):
             for y in x:
                 # soma mais um no dict para poder ordenar depois no lits
                 var_qtd[y] += 1
-    if len(claus_false) == 0:
+    if not claus_false:
         print("SAT")
     else:
         print(f"[{qtd_false} clausulas falsas] ",end="")
@@ -61,12 +53,12 @@ Claus = int(Claus)
 
 var_qtd = {}
 #dict compreension
-all_var = {x:True if x>0 else False for x in range(-Var,Var+1) }
+all_var = {x: x>0 for x in range(-Var,Var+1)}
 
 list_claus = []
 
 # inserindo as clausulas em uma lista
-for x in range(Claus):
+for _ in range(Claus):
     inp = input().split()
     var_atuais = []
     # var_atuais = sorted(var_atuais, key=sort_func)
@@ -75,7 +67,7 @@ for x in range(Claus):
             break
         # inicializa a quantidade em zero para ordenar no lits
         var_qtd.update({int(y):0})
- 
+
         # cria uma lista de como foi escrito no input
         var_atuais.append(int(y))
     list_claus.append(var_atuais)
