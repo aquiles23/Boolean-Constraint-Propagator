@@ -5,17 +5,18 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import multiprocessing as mp
 import psutil as ps
 import os
+import time
 
 queue = mp.Queue()
 queue_lock = mp.Lock()
+print_lock = mp.Lock()
 
 def verificator(claus: list, var_qtd : dict):
     claus_false = []
-    this_var_qtd = var_qtd.copy()
     parent = ps.Process(os.getppid())
     #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
-    while not queue.empty() or True:
+    while True:
         queue_lock.acquire()
         try:
             vars_atual = queue.get(timeout=1)
@@ -51,19 +52,22 @@ def verificator(claus: list, var_qtd : dict):
                 qtd_false += 1
                 for y in x:
                     # soma mais um no dict para poder ordenar depois no lits
-                    this_var_qtd[y] += 1
+                    var_qtd[y] += 1
+        print_lock.acquire()
         if not claus_false:
             print("SAT")
         else:
             print(f"[{qtd_false} clausulas falsas] ",end="")
             print(*claus_false)
             print(f"[lits] ",end="")
-            lvar_qtd = list(filter(lambda x: this_var_qtd[x] != 0,this_var_qtd))
+            lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
 
-            lvar_qtd = sorted(lvar_qtd, key= lambda x: (this_var_qtd[x], abs(x)) , reverse=True)
+            lvar_qtd = sorted(lvar_qtd, key= lambda x: (var_qtd[x], abs(x)) , reverse=True)
             print(*lvar_qtd)
+        print_lock.release()
+        # resetando os objetos
         bool_claus.clear()
-        this_var_qtd = var_qtd.copy()
+        var_qtd = dict.fromkeys(var_qtd, 0)
         claus_false.clear()
     return "xablau"
 
