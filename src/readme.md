@@ -1,7 +1,6 @@
 ## requisitos
 
 python3
-pip install psutil
 
 ## para executar a solução sequencial
 

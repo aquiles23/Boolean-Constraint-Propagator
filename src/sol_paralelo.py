@@ -3,7 +3,6 @@ import sys
 import math
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import multiprocessing as mp
-import psutil as ps
 import os
 import time
 
@@ -13,7 +12,6 @@ print_lock = mp.Lock()
 
 def verificator(claus: list, var_qtd : dict):
     claus_false = []
-    parent = ps.Process(os.getppid())
     #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
     while True:
