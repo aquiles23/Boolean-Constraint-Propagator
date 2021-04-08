@@ -17,11 +17,11 @@ def verificator(claus: list, var_qtd : dict):
     while True:
         queue_lock.acquire()
         try:
-            vars_atual = queue.get(timeout=1)
+            vars_atual = queue.get(timeout=0.5)
         except:
-            queue_lock.release()
             break
-        queue_lock.release()
+        finally:
+            queue_lock.release()
 
         qtd_false = 0
         for i, x in enumerate(claus):
@@ -88,8 +88,7 @@ def producer(all_var: dict):
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
             
-            queue.put_nowait(dict_var)
-
+            queue.put(dict_var)
             #zera a contagm
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
@@ -106,7 +105,7 @@ def producer(all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            queue.put_nowait(dict_var)
+            queue.put(dict_var)
             #zera a contagem
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
@@ -141,12 +140,10 @@ def main():
             var_atuais.append(int(y))
         list_claus.append(var_atuais)
 
-    with ThreadPoolExecutor() as TExecutor:
-        tred = TExecutor.submit(producer, all_var)
-        with ProcessPoolExecutor(max_workers=num_cores) as PExecutor:
-            for i in range(num_cores):
-                proc = PExecutor.submit(verificator, list_claus, var_qtd)
-        print(proc.result(), tred.result())
+    with ProcessPoolExecutor(max_workers=num_cores) as PExecutor:
+        for i in range(num_cores - 1):
+            proc = PExecutor.submit(verificator, list_claus, var_qtd)
+        PExecutor.submit(producer,all_var)
 
 if __name__ == '__main__':
     main()
