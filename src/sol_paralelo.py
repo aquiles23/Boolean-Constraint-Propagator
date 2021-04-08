@@ -143,7 +143,7 @@ def main():
     with ProcessPoolExecutor(max_workers=num_cores) as PExecutor:
         for i in range(num_cores - 1):
             proc = PExecutor.submit(verificator, list_claus, var_qtd)
-        PExecutor.submit(producer,all_var)
+        producer(all_var)
 
 if __name__ == '__main__':
     main()
