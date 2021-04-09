@@ -6,7 +6,7 @@ import multiprocessing as mp
 import os
 import time
 
-queue = mp.Queue()
+queue = mp.Manager().Queue()
 queue_lock = mp.Lock()
 print_lock = mp.Lock()
 
@@ -15,13 +15,14 @@ def verificator(claus: list, var_qtd : dict):
     #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
     while True:
-        queue_lock.acquire()
+        # queue_lock.acquire()
         try:
             vars_atual = queue.get(timeout=0.5)
         except:
             break
         finally:
-            queue_lock.release()
+            pass
+            #queue_lock.release()
 
         qtd_false = 0
         for i, x in enumerate(claus):
@@ -69,6 +70,12 @@ def verificator(claus: list, var_qtd : dict):
         claus_false.clear()
     return "xablau"
 
+def put_queue(data):
+    # talvez tirar alguns mutex pode melhorar performance
+    # queue_lock.acquire()
+    queue.put(data)
+    # queue_lock.release()
+
 def producer(all_var: dict):
     dict_var = {}
     for line in sys.stdin:
@@ -87,8 +94,7 @@ def producer(all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            
-            queue.put(dict_var)
+            put_queue(dict_var)
             #zera a contagm
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
@@ -105,7 +111,7 @@ def producer(all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            queue.put(dict_var)
+            put_queue(dict_var)
             #zera a contagem
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
