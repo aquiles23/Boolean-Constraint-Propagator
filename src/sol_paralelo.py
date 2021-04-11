@@ -9,13 +9,14 @@ import time
 queue = mp.Manager().Queue()
 queue_lock = mp.Lock()
 print_lock = mp.Lock()
-producer_finished = mp.Value('b',False)
+
+pipe_producer, pipe_consumer = mp.Pipe()
 
 def verificator(claus: list, var_qtd : dict):
     claus_false = []
     #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
-    while not producer_finished.value or not queue.empty():
+    while not pipe_consumer.poll() or not queue.empty():
         # queue_lock.acquire()
         try:
             vars_atual = queue.get(timeout=0.5)
@@ -118,7 +119,7 @@ def producer(all_var: dict):
 
             # print(dict_var)
             # print('')
-    producer_finished.value = True
+    pipe_producer.send(True)
     return 'tred_return'
 
 def main():
