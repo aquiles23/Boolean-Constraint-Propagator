@@ -5,6 +5,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import multiprocessing as mp
 # import os
 import time
+import heapq
 
 queue = mp.Manager().Queue()
 queue_lock = mp.Lock()
@@ -14,6 +15,7 @@ pipe_producer, pipe_consumer = mp.Pipe()
 
 def verificator(claus: list, var_qtd : dict):
     claus_false = []
+    heap = []
     #print(f"var_atuais:  {vars_atual}")
     # print(f"clausulas {claus}")
     while not pipe_consumer.poll() or not queue.empty():
@@ -54,23 +56,25 @@ def verificator(claus: list, var_qtd : dict):
                 for y in x:
                     # soma mais um no dict para poder ordenar depois no lits
                     var_qtd[y] += 1
-        print_lock.acquire()
+        # print_lock.acquire()
         if not claus_false:
-            print("SAT")
+            string = 'SAT\n'
         else:
-            print(f"[{qtd_false} clausulas falsas] ",end="")
-            print(*claus_false)
-            print(f"[lits] ",end="")
+            string = f'[{qtd_false} clausulas falsas] '
+            string += str(claus_false)[1:-1].replace(',','') + '\n'
+            string += '[lits] '
             lvar_qtd = list(filter(lambda x: var_qtd[x] != 0,var_qtd))
 
             lvar_qtd = sorted(lvar_qtd, key= lambda x: (var_qtd[x], abs(x)) , reverse=True)
-            print(*lvar_qtd)
-        print_lock.release()
+            string += str(lvar_qtd)[1:-1].replace(',','') + '\n'
+            
+        # print_lock.release()
         # resetando os objetos
         bool_claus.clear()
         var_qtd = dict.fromkeys(var_qtd, 0)
         claus_false.clear()
-    return "xablau"
+        heapq.heappush(heap,(ind,string))
+    return heap
 
 def put_queue(data):
     # talvez tirar alguns mutex pode melhorar performance
@@ -119,6 +123,7 @@ def producer(all_var: dict):
 
             # print(dict_var)
             # print('')
+    # avisa aos processos filhos que o producer terminou
     pipe_producer.send(True)
     return 'tred_return'
 
@@ -148,11 +153,18 @@ def main():
             # cria uma lista de como foi escrito no input
             var_atuais.append(int(y))
         list_claus.append(var_atuais)
-
     with ProcessPoolExecutor(max_workers=num_cores) as PExecutor:
-        for i in range(num_cores - 1):
-            proc = PExecutor.submit(verificator, list_claus, var_qtd)
+        procs = [
+            PExecutor.submit(verificator, list_claus, var_qtd)
+            for _ in range(num_cores - 1)
+        ]
         producer(all_var)
+        res = []
+        for x in procs:
+            res = heapq.merge(res,x.result())
+
+    for ind, string in res:
+        print(string, end='')
 
 if __name__ == '__main__':
     main()
