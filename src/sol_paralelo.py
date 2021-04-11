@@ -19,7 +19,7 @@ def verificator(claus: list, var_qtd : dict):
     while not pipe_consumer.poll() or not queue.empty():
         # queue_lock.acquire()
         try:
-            vars_atual = queue.get(timeout=0.5)
+            ind , vars_atual = queue.get(timeout=0.5)
         except:
             break
         finally:
@@ -80,7 +80,7 @@ def put_queue(data):
 
 def producer(all_var: dict):
     dict_var = {}
-    for line in sys.stdin:
+    for ind,line in enumerate(sys.stdin):
 
         cmd, *val = line.split()
         #print('cmd', cmd)
@@ -96,7 +96,7 @@ def producer(all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            put_queue(dict_var)
+            put_queue((ind,dict_var))
             #zera a contagm
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
@@ -113,7 +113,7 @@ def producer(all_var: dict):
             
             # aqui coloca na fila ao invés de chamar a função
             # verificator(list_claus, dict_var, var_qtd)
-            put_queue(dict_var)
+            put_queue((ind,dict_var))
             #zera a contagem
             # var_qtd = dict.fromkeys(var_qtd, 0)
 
