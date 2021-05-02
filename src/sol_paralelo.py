@@ -8,8 +8,6 @@ import time
 import heapq
 
 queue = mp.Manager().Queue()
-queue_lock = mp.Lock()
-print_lock = mp.Lock()
 
 pipe_producer, pipe_consumer = mp.Pipe()
 
@@ -24,8 +22,6 @@ def verificator(claus: list, var_qtd : dict):
             ind , vars_atual = queue.get(timeout=0.5)
         except:
             break
-        finally:
-            pass
             #queue_lock.release()
 
         qtd_false = 0
@@ -165,6 +161,9 @@ def main():
 
     for ind, string in res:
         print(string, end='')
+    
+    pipe_producer.close()
+    pipe_consumer.close()
 
 if __name__ == '__main__':
     main()
